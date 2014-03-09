@@ -1,0 +1,13 @@
+# Java
+*.class
+META-INF/
+
+# IDEA
+.idea
+*.iml
+*.ipr
+*.iws
+*.ids
+
+# Maven
+target/
