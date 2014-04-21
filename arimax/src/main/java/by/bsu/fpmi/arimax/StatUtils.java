@@ -55,7 +55,7 @@ public final class StatUtils {
             double value = moment.getValue();
             squareSum += (value - mean) * (value - mean);
         }
-        return squareSum / segment.size();
+        return squareSum / segment.size(); // TODO: maybe -1 needed?
     }
 
     public static double calcStandardDeviation(List<Moment> segment, double mean) {

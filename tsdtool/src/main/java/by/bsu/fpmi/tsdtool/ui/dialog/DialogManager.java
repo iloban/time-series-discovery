@@ -1,6 +1,7 @@
 package by.bsu.fpmi.tsdtool.ui.dialog;
 
 import by.bsu.fpmi.arimax.model.TimeSeries;
+import by.bsu.fpmi.tsdtool.ui.dialog.arima.ARIMADialog;
 
 import java.util.HashMap;
 import java.util.Map;

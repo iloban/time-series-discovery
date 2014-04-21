@@ -2,9 +2,10 @@ package by.bsu.fpmi.tsdtool.ui.action.tool;
 
 import by.bsu.fpmi.arimax.model.TimeSeries;
 import by.bsu.fpmi.tsdtool.ui.action.AbstractAction;
-import by.bsu.fpmi.tsdtool.ui.dialog.ARIMADialog;
+import by.bsu.fpmi.tsdtool.ui.dialog.arima.ARIMADialog;
 import by.bsu.fpmi.tsdtool.ui.dialog.Dialog;
 import by.bsu.fpmi.tsdtool.ui.dialog.DialogManager;
+import by.bsu.fpmi.tsdtool.ui.dialog.arima.SelectRegionView;
 
 import java.awt.event.ActionEvent;
 
@@ -17,6 +18,7 @@ public class ARIMAAction extends AbstractAction {
         } else {
             TimeSeries timeSeries = dialog.getTimeSeries();
             ARIMADialog arimaDialog = DialogManager.createARIMADialog(timeSeries);
+            arimaDialog.setView(new SelectRegionView(arimaDialog));
             arimaDialog.setVisible(true);
         }
     }
