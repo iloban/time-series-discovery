@@ -98,10 +98,10 @@ public class AutocorrelationDialog extends JFrame implements Dialog {
 
     protected void calcAutocorrelationFunction() {
         List<Moment> moments = timeSeries.getMoments();
-        double mean = StatUtils.calcMean(moments);
-        double dispersion = StatUtils.calcDispersion(moments, mean);
+        double mean = StatUtils.getMean(timeSeries);
+        double dispersion = StatUtils.getVariance(timeSeries, mean);
         for (int k = 0; k < moments.size(); k++) {
-            acfSeries.add(k, StatUtils.calcACF(moments, k, mean, dispersion));
+            acfSeries.add(k, StatUtils.getACF(moments, k, mean, dispersion));
         }
         acfSeries.fireSeriesChanged();
     }

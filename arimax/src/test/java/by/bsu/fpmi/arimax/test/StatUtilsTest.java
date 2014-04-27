@@ -2,6 +2,7 @@ package by.bsu.fpmi.arimax.test;
 
 import by.bsu.fpmi.arimax.StatUtils;
 import by.bsu.fpmi.arimax.model.Moment;
+import by.bsu.fpmi.arimax.model.TimeSeries;
 import org.junit.Test;
 
 import java.util.ArrayList;
@@ -19,7 +20,7 @@ public class StatUtilsTest {
         series.add(new Moment(2));
         series.add(new Moment(3));
 
-        double mean = StatUtils.calcMean(series);
+        double mean = StatUtils.getMean(new TimeSeries(series, "test"));
 
         assertEquals(mean, 2, DELTA);
     }

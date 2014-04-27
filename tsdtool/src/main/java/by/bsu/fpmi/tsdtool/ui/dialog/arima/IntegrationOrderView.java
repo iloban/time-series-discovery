@@ -2,7 +2,7 @@ package by.bsu.fpmi.tsdtool.ui.dialog.arima;
 
 import by.bsu.fpmi.arimax.StatUtils;
 import by.bsu.fpmi.arimax.model.TimeSeries;
-import by.bsu.fpmi.tsdtool.model.TimeSeriesBundle;
+import by.bsu.fpmi.arimax.model.TimeSeriesBundle;
 import by.bsu.fpmi.tsdtool.util.TimeSeriesUtils;
 import org.jfree.chart.ChartPanel;
 
@@ -40,13 +40,11 @@ public final class IntegrationOrderView implements View {
 
     private void initComponents() {
         TimeSeries regionTimeSeries = dialog.getRegionTimeSeries();
-        TimeSeries acfSeries = StatUtils.calcACFSeries(regionTimeSeries);
-        TimeSeries pacfSeries = StatUtils.calcPACFSeries(regionTimeSeries);
-        TimeSeriesBundle bundle = new TimeSeriesBundle(regionTimeSeries, acfSeries, pacfSeries);
+        TimeSeriesBundle bundle = StatUtils.getBundle(regionTimeSeries);
         bundles.add(0, bundle);
 
-        acfChartPanel = TimeSeriesUtils.createChartPanel(acfSeries);
-        pacfChartPanel = TimeSeriesUtils.createChartPanel(pacfSeries);
+        acfChartPanel = TimeSeriesUtils.createChartPanel(bundle.getAcfSeries());
+        pacfChartPanel = TimeSeriesUtils.createChartPanel(bundle.getPacfSeries());
     }
 
     private void arrangeComponents() {

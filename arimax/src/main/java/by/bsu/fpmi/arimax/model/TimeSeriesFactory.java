@@ -1,10 +1,8 @@
-package by.bsu.fpmi.tsdtool.model;
+package by.bsu.fpmi.arimax.model;
 
 import au.com.bytecode.opencsv.CSVReader;
 import au.com.bytecode.opencsv.bean.ColumnPositionMappingStrategy;
 import au.com.bytecode.opencsv.bean.CsvToBean;
-import by.bsu.fpmi.arimax.model.Moment;
-import by.bsu.fpmi.arimax.model.TimeSeries;
 
 import java.io.File;
 import java.io.FileNotFoundException;

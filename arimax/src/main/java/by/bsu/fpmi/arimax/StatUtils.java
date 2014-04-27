@@ -2,6 +2,7 @@ package by.bsu.fpmi.arimax;
 
 import by.bsu.fpmi.arimax.model.Moment;
 import by.bsu.fpmi.arimax.model.TimeSeries;
+import by.bsu.fpmi.arimax.model.TimeSeriesBundle;
 import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.ArrayList;
@@ -11,13 +12,14 @@ public final class StatUtils {
     private StatUtils() {
     }
 
-    public static double calcNumerator(List<Moment> segment) {
-        double mean = calcMean(segment);
-        double standardDeviation = calcStandardDeviation(segment, mean);
+    public static double calcNumerator(TimeSeries timeSeries) {
+        double mean = getMean(timeSeries);
+        double standardDeviation = calcStandardDeviation(timeSeries, mean);
         double minCumulativeDeviation = Double.MAX_VALUE;
         double maxCumulativeDeviation = Double.MIN_VALUE;
-        for (int t = 1; t <= segment.size(); t++) {
-            double cumulativeDeviation = calcCumulativeDeviation(segment, mean, t);
+        List<Moment> moments = timeSeries.getMoments();
+        for (int t = 1; t <= moments.size(); t++) {
+            double cumulativeDeviation = calcCumulativeDeviation(moments, mean, t);
             if (minCumulativeDeviation > cumulativeDeviation) {
                 minCumulativeDeviation = cumulativeDeviation;
             }
@@ -29,71 +31,101 @@ public final class StatUtils {
         return Math.log10(spread / standardDeviation);
     }
 
-    public static double calcDenominator(List<Moment> segment) {
-        return Math.log10(segment.size() / 2);
+    public static double calcDenominator(int segmentLength) {
+        return Math.log10(segmentLength / 2);
     }
 
-    public static TimeSeries calcACFSeries(TimeSeries timeSeries) {
+    public static TimeSeriesBundle getBundle(TimeSeries timeSeries) {
+        double mean = getMean(timeSeries);
+        double variance = getVariance(timeSeries, mean);
+        TimeSeries acfSeries = calcACFSeries(timeSeries, mean, variance);
+        TimeSeries pacfSeries = getPACFSeries(timeSeries.getTitle(), acfSeries);
+        return new TimeSeriesBundle(timeSeries, acfSeries, pacfSeries);
+    }
+
+    public static TimeSeries calcACFSeries(TimeSeries timeSeries, double mean, double variance) {
         List<Moment> moments = timeSeries.getMoments();
-        double mean = calcMean(moments);
-        double dispersion = calcDispersion(moments, mean);
         List<Moment> result = new ArrayList<>(moments.size());
         for (int k = 0; k < moments.size(); k++) {
-            result.add(new Moment(k, calcACF(moments, k, mean, dispersion)));
+            result.add(new Moment(k, getACF(moments, k, mean, variance)));
         }
         return new TimeSeries(result, "ACF of " + timeSeries.getTitle());
     }
 
-    public static TimeSeries calcPACFSeries(TimeSeries timeSeries) {
+    public static TimeSeries getPACFSeries(String timeSeriesTitle, TimeSeries acfSeries) {
+        // Declaration
+        List<Moment> acfMoments = acfSeries.getMoments();
+        List<Moment> result = new ArrayList<>(acfMoments.size());
+
+        List<Double> oldFies;
+        List<Double> newFies = new ArrayList<>();
+
+        // Initialization
+        result.add(acfMoments.get(1));
+        newFies.add(acfMoments.get(1).getValue());
+
+        // Computation
+        for (int k = 2; k < acfMoments.size(); k++) {
+            Moment moment = new Moment(k, getPACF(acfMoments, k, newFies));
+            result.add(moment);
+
+            oldFies = newFies;
+            newFies = getNewFies(oldFies, k, moment.getValue());
+        }
+
+        // Result
+        return new TimeSeries(result, "PACF of " + timeSeriesTitle);
+    }
+
+    private static List<Double> getNewFies(List<Double> oldFies, int k, double newFi) {
+        List<Double> result = new ArrayList<>();
+        for (int i = 0; i < k - 1; i++) {
+            result.add(oldFies.get(i) - newFi * oldFies.get(k - i - 2));
+        }
+        return result;
+    }
+
+    private static double getPACF(List<Moment> acfMoments, int k, List<Double> fies) {
+        double numeratorSum = 0;
+        double denominatorSum = 0;
+        for (int i = 0; i < k - 1; i++) {
+            numeratorSum += fies.get(i) * acfMoments.get(k - i - 2).getValue();
+            denominatorSum += fies.get(i) * acfMoments.get(i).getValue();
+        }
+        return (acfMoments.get(k - 1).getValue() - numeratorSum) / (1 - denominatorSum);
+    }
+
+    public static double getACF(List<Moment> moments, int k, double mean, double variance) {
+        int n = moments.size();
+        double numerator = 0;
+        double denominator = (n - k) * variance;
+        for (int i = 0; i < n - k; i++) {
+            numerator += (moments.get(i).getValue() - mean) * (moments.get(i + k).getValue() - mean);
+        }
+        return numerator / denominator;
+    }
+
+    public static double getMean(TimeSeries timeSeries) {
         List<Moment> moments = timeSeries.getMoments();
-        double mean = calcMean(moments);
-        double dispersion = calcDispersion(moments, mean);
-        List<Moment> result = new ArrayList<>(moments.size());
-        for (int k = 0; k < moments.size(); k++) {
-            result.add(new Moment(k, calcPACF(moments, k, mean, dispersion)));
-        }
-        return new TimeSeries(result, "PACF of " + timeSeries.getTitle());
-    }
-
-    private static double calcPACF(List<Moment> moments, int k, double mean, double variance) {
-        int n = moments.size();
-        double numerator = 0;
-        double denominator = (n - k) * variance;
-        for (int i = 0; i < n - k; i++) {
-            numerator += (moments.get(i).getValue() - mean) * (moments.get(i + k).getValue() - mean);
-        }
-        return numerator / denominator;
-    }
-
-    public static double calcACF(List<Moment> moments, int k, double mean, double variance) {
-        int n = moments.size();
-        double numerator = 0;
-        double denominator = (n - k) * variance;
-        for (int i = 0; i < n - k; i++) {
-            numerator += (moments.get(i).getValue() - mean) * (moments.get(i + k).getValue() - mean);
-        }
-        return numerator / denominator;
-    }
-
-    public static double calcMean(List<Moment> segment) {
         double sum = 0;
-        for (Moment moment : segment) {
+        for (Moment moment : moments) {
             sum += moment.getValue();
         }
-        return sum / segment.size();
+        return sum / moments.size();
     }
 
-    public static double calcDispersion(List<Moment> segment, double mean) {
-        double squareSum = 0;
-        for (Moment moment : segment) {
+    public static double getVariance(TimeSeries timeSeries, double mean) {
+        List<Moment> moments = timeSeries.getMoments();
+        double sumOfSquares = 0;
+        for (Moment moment : moments) {
             double value = moment.getValue();
-            squareSum += (value - mean) * (value - mean);
+            sumOfSquares += (value - mean) * (value - mean);
         }
-        return squareSum / segment.size(); // TODO: maybe -1 needed?
+        return sumOfSquares / (moments.size() - 1);
     }
 
-    public static double calcStandardDeviation(List<Moment> segment, double mean) {
-        return Math.sqrt(calcDispersion(segment, mean));
+    public static double calcStandardDeviation(TimeSeries timeSeries, double mean) {
+        return Math.sqrt(getVariance(timeSeries, mean));
     }
 
     public static double calcCumulativeDeviation(List<Moment> segment, double mean, int t) {

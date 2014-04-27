@@ -1,6 +1,4 @@
-package by.bsu.fpmi.tsdtool.model;
-
-import by.bsu.fpmi.arimax.model.TimeSeries;
+package by.bsu.fpmi.arimax.model;
 
 public final class TimeSeriesBundle {
     private final TimeSeries sourceTimeSeries;

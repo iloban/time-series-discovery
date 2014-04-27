@@ -1,7 +1,7 @@
 package by.bsu.fpmi.tsdtool.ui.action.file;
 
 import by.bsu.fpmi.arimax.model.TimeSeries;
-import by.bsu.fpmi.tsdtool.model.TimeSeriesFactory;
+import by.bsu.fpmi.arimax.model.TimeSeriesFactory;
 import by.bsu.fpmi.tsdtool.ui.action.AbstractAction;
 import by.bsu.fpmi.tsdtool.ui.dialog.DialogManager;
 import by.bsu.fpmi.tsdtool.ui.dialog.DialogUtils;

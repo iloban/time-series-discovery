@@ -298,8 +298,8 @@ public class HurstExponentialDialog extends JFrame implements Dialog {
             List<Double> hurstDenominators = new ArrayList<>();
             for (Integer tau : taus) {
                 List<Moment> segment = moments.subList(0, tau);
-                hurstNumerators.add(StatUtils.calcNumerator(segment));
-                hurstDenominators.add(StatUtils.calcDenominator(segment));
+                hurstNumerators.add(StatUtils.calcNumerator(new TimeSeries(segment, "numerator")));
+                hurstDenominators.add(StatUtils.calcDenominator(segment.size()));
             }
             Pair<Double, Double> lineRegressionCoefficients =
                     calcAndViewSeriesParameters(hurstDenominators, hurstNumerators);
