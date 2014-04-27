@@ -18,6 +18,7 @@ public final class ARIMADialog extends JFrame implements Dialog {
     private final JPanel contentPanel = new JPanel();
 
     private View currentView;
+    private TimeSeries regionTimeSeries;
 
     public ARIMADialog(int id, TimeSeries timeSeries) {
         this.id = id;
@@ -45,6 +46,7 @@ public final class ARIMADialog extends JFrame implements Dialog {
 
     public void setView(View newView) {
         currentView = newView;
+        contentPanel.updateUI();
     }
 
     @Override
@@ -55,6 +57,14 @@ public final class ARIMADialog extends JFrame implements Dialog {
     @Override
     public TimeSeries getTimeSeries() {
         return timeSeries;
+    }
+
+    public TimeSeries getRegionTimeSeries() {
+        return regionTimeSeries;
+    }
+
+    public void setRegionTimeSeries(TimeSeries regionTimeSeries) {
+        this.regionTimeSeries = regionTimeSeries;
     }
 
     public JPanel getContentPanel() {

@@ -5,6 +5,7 @@ import by.bsu.fpmi.arimax.model.TimeSeries;
 import by.bsu.fpmi.tsdtool.ui.i18n.MessageUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.jfree.chart.ChartFactory;
+import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.axis.NumberAxis;
 import org.jfree.chart.plot.PlotOrientation;
@@ -13,7 +14,22 @@ import org.jfree.data.xy.XYDataset;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
 
+import static javax.swing.BorderFactory.createEtchedBorder;
+import static javax.swing.BorderFactory.createTitledBorder;
+
 public final class TimeSeriesUtils {
+    private TimeSeriesUtils() {
+        throw new AssertionError();
+    }
+
+    public static ChartPanel createChartPanel(TimeSeries timeSeries) {
+        XYDataset dataset = TimeSeriesUtils.createTimeSeriesDataset(timeSeries);
+        JFreeChart chart = TimeSeriesUtils.createTimeSeriesChart(dataset);
+        ChartPanel panel = new ChartPanel(chart);
+        panel.setBorder(createTitledBorder(createEtchedBorder(), timeSeries.getTitle()));
+        return panel;
+    }
+
     public static XYDataset createTimeSeriesDataset(TimeSeries timeSeries) {
         XYSeries series = new XYSeries(StringUtils.EMPTY, false, true);
         for (Moment moment : timeSeries.getMoments()) {
@@ -33,9 +49,5 @@ public final class TimeSeriesUtils {
         NumberAxis rangeAxis = (NumberAxis) plot.getRangeAxis();
         rangeAxis.setAutoRangeIncludesZero(true);
         return chart;
-    }
-
-    private TimeSeriesUtils() {
-        throw new AssertionError();
     }
 }

@@ -1,8 +1,10 @@
 package by.bsu.fpmi.arimax;
 
 import by.bsu.fpmi.arimax.model.Moment;
+import by.bsu.fpmi.arimax.model.TimeSeries;
 import org.apache.commons.lang3.tuple.Pair;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public final class StatUtils {
@@ -31,12 +33,44 @@ public final class StatUtils {
         return Math.log10(segment.size() / 2);
     }
 
-    public static double calcACF(List<Moment> segment, int k, double mean, double dispersion) {
-        int n = segment.size();
+    public static TimeSeries calcACFSeries(TimeSeries timeSeries) {
+        List<Moment> moments = timeSeries.getMoments();
+        double mean = calcMean(moments);
+        double dispersion = calcDispersion(moments, mean);
+        List<Moment> result = new ArrayList<>(moments.size());
+        for (int k = 0; k < moments.size(); k++) {
+            result.add(new Moment(k, calcACF(moments, k, mean, dispersion)));
+        }
+        return new TimeSeries(result, "ACF of " + timeSeries.getTitle());
+    }
+
+    public static TimeSeries calcPACFSeries(TimeSeries timeSeries) {
+        List<Moment> moments = timeSeries.getMoments();
+        double mean = calcMean(moments);
+        double dispersion = calcDispersion(moments, mean);
+        List<Moment> result = new ArrayList<>(moments.size());
+        for (int k = 0; k < moments.size(); k++) {
+            result.add(new Moment(k, calcPACF(moments, k, mean, dispersion)));
+        }
+        return new TimeSeries(result, "PACF of " + timeSeries.getTitle());
+    }
+
+    private static double calcPACF(List<Moment> moments, int k, double mean, double variance) {
+        int n = moments.size();
         double numerator = 0;
-        double denominator = (n - k) * dispersion;
+        double denominator = (n - k) * variance;
         for (int i = 0; i < n - k; i++) {
-            numerator += (segment.get(i).getValue() - mean) * (segment.get(i + k).getValue() - mean);
+            numerator += (moments.get(i).getValue() - mean) * (moments.get(i + k).getValue() - mean);
+        }
+        return numerator / denominator;
+    }
+
+    public static double calcACF(List<Moment> moments, int k, double mean, double variance) {
+        int n = moments.size();
+        double numerator = 0;
+        double denominator = (n - k) * variance;
+        for (int i = 0; i < n - k; i++) {
+            numerator += (moments.get(i).getValue() - mean) * (moments.get(i + k).getValue() - mean);
         }
         return numerator / denominator;
     }
@@ -85,8 +119,7 @@ public final class StatUtils {
             g1 += x * y;
             g2 += y;
         }
-        return Pair
-                .of((count * g1 - c2 * g2) / (count * c1 - c2 * c2), (g2 * c1 - g1 * c2) / (count * c1 - c2 * c2));
+        return Pair.of((count * g1 - c2 * g2) / (count * c1 - c2 * c2), (g2 * c1 - g1 * c2) / (count * c1 - c2 * c2));
     }
 
     public static double calcFractalDimension(double hurst) {
@@ -103,5 +136,10 @@ public final class StatUtils {
 
     public static double calcFractalMeasure(double hurst) {
         return 3 - 2 * hurst;
+    }
+
+    public static TimeSeries getRegion(TimeSeries timeSeries, int leftBound, int rightBound) {
+        return new TimeSeries(new ArrayList<>(timeSeries.getMoments().subList(leftBound, rightBound)),
+                "Region of " + timeSeries.getTitle());
     }
 }

@@ -16,6 +16,7 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
 
+import static by.bsu.fpmi.arimax.StatUtils.getRegion;
 import static by.bsu.fpmi.tsdtool.ui.i18n.MessageUtils.getMessage;
 
 public final class SelectRegionView implements View {
@@ -55,10 +56,19 @@ public final class SelectRegionView implements View {
         rightBoundSlider.setMaximum(timeSeries.getMoments().size() - 1);
         rightBoundSlider.setValue(timeSeries.getMoments().size() - 1);
         rightBoundSlider.addChangeListener(boundChangedListener);
+
+        nextButton.addActionListener(e -> {
+            int leftBound = leftBoundSlider.getValue();
+            int rightBound = rightBoundSlider.getValue();
+            TimeSeries region = getRegion(timeSeries, leftBound, rightBound);
+            dialog.setRegionTimeSeries(region);
+            dialog.setView(new IntegrationOrderView(dialog));
+        });
     }
 
     private void arrangeComponents() {
         JPanel contentPanel = dialog.getContentPanel();
+        contentPanel.removeAll();
         contentPanel.setLayout(new GridBagLayout());
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.insets = new Insets(5, 5, 5, 5);
