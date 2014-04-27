@@ -82,6 +82,7 @@ public final class StatUtils {
         for (int i = 0; i < k - 1; i++) {
             result.add(oldFies.get(i) - newFi * oldFies.get(k - i - 2));
         }
+        result.add(newFi);
         return result;
     }
 
@@ -172,6 +173,6 @@ public final class StatUtils {
 
     public static TimeSeries getRegion(TimeSeries timeSeries, int leftBound, int rightBound) {
         return new TimeSeries(new ArrayList<>(timeSeries.getMoments().subList(leftBound, rightBound)),
-                "Region of " + timeSeries.getTitle());
+                "Region[" + leftBound + "; " + rightBound + "] of " + timeSeries.getTitle());
     }
 }
