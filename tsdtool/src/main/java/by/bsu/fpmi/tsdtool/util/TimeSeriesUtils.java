@@ -50,4 +50,8 @@ public final class TimeSeriesUtils {
         rangeAxis.setAutoRangeIncludesZero(true);
         return chart;
     }
+
+    public static void updateChartPanel(ChartPanel chartPanel, TimeSeries timeSeries) {
+        chartPanel.getChart().getXYPlot().setDataset(createTimeSeriesDataset(timeSeries));
+    }
 }

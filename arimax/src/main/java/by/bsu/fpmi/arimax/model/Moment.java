@@ -1,11 +1,6 @@
 package by.bsu.fpmi.arimax.model;
 
 public class Moment {
-    public static class Property {
-        public static final String TIME = "time";
-        public static final String VALUE = "value";
-    }
-
     private double time;
     private double value;
 
@@ -14,6 +9,11 @@ public class Moment {
 
     public Moment(double value) {
         this.value = value;
+    }
+
+    public Moment(Moment moment) {
+        this.time = moment.time;
+        this.value = moment.value;
     }
 
     public Moment(double time, double value) {
@@ -35,5 +35,10 @@ public class Moment {
 
     public void setValue(double value) {
         this.value = value;
+    }
+
+    public static class Property {
+        public static final String TIME = "time";
+        public static final String VALUE = "value";
     }
 }

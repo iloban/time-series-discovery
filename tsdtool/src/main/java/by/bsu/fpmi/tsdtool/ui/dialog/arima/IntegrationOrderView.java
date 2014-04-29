@@ -45,6 +45,23 @@ public final class IntegrationOrderView implements View {
 
         acfChartPanel = TimeSeriesUtils.createChartPanel(bundle.getAcfSeries());
         pacfChartPanel = TimeSeriesUtils.createChartPanel(bundle.getPacfSeries());
+
+        integrationParamSpinner.addChangeListener((e) -> updateCharts());
+
+        backButton.addActionListener((e) -> dialog.setView(new SelectRegionView(dialog)));
+    }
+
+    private void updateCharts() {
+        int differenceOrder = (int) integrationParamSpinner.getValue();
+        for (int i = bundles.size() - 1; i < differenceOrder; i++) {
+            bundles.add(i + 1, StatUtils.getBundle(StatUtils.getDifference(bundles.get(i).getSourceTimeSeries(), 1)));
+        }
+        TimeSeriesBundle bundle = bundles.get(differenceOrder);
+        TimeSeriesUtils.updateChartPanel(acfChartPanel, bundle.getAcfSeries());
+        TimeSeriesUtils.updateChartPanel(pacfChartPanel, bundle.getPacfSeries());
+
+        acfChartPanel.updateUI();
+        pacfChartPanel.updateUI();
     }
 
     private void arrangeComponents() {
@@ -64,19 +81,6 @@ public final class IntegrationOrderView implements View {
         gbc.anchor = GridBagConstraints.WEST;
         contentPanel.add(integrationParamSpinner, gbc);
 
-        //        JPanel acfChartPanel = new JPanel(new GridBagLayout());
-        //        acfChartPanel.setBorder(
-        //                createTitledBorder(createEtchedBorder(), getMessage("ui.dialog.arimaDialog.chart.acf
-        // .title")));
-        //        gbc.gridx = 0;
-        //        gbc.gridy = 0;
-        //        gbc.weightx = 1;
-        //        gbc.weighty = 1;
-        //        gbc.fill = GridBagConstraints.BOTH;
-        //        gbc.anchor = GridBagConstraints.CENTER;
-        //        gbc.insets = new Insets(0, 0, 0, 0);
-        //        acfChartPanel.add(this.acfChartPanel, gbc);
-
         JPanel chartPanel = new JPanel(new GridBagLayout());
         gbc.gridx = 0;
         gbc.gridy = 0;
@@ -86,6 +90,15 @@ public final class IntegrationOrderView implements View {
         gbc.anchor = GridBagConstraints.WEST;
         gbc.insets = new Insets(0, 0, 0, 0);
         chartPanel.add(acfChartPanel, gbc);
+
+        gbc.gridx = 1;
+        gbc.gridy = 0;
+        gbc.weightx = 0.5;
+        gbc.weighty = 1;
+        gbc.fill = GridBagConstraints.BOTH;
+        gbc.anchor = GridBagConstraints.WEST;
+        gbc.insets = new Insets(0, 0, 0, 0);
+        chartPanel.add(pacfChartPanel, gbc);
 
         gbc.gridx = 0;
         gbc.gridy = 1;

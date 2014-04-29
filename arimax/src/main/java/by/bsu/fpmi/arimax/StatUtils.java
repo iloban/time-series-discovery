@@ -12,6 +12,27 @@ public final class StatUtils {
     private StatUtils() {
     }
 
+    public static TimeSeries getDifference(TimeSeries timeSeries, int order) {
+        if (order <= 0) {
+            return timeSeries;
+        }
+        List<Moment> moments = timeSeries.getMoments();
+        List<Moment> result = new ArrayList<>();
+        for (int i = 1; i <= order; i++) {
+            result.add(new Moment(moments.get(0)));
+            for (int j = 1; j < moments.size(); j++) {
+                Moment previousMoment = moments.get(j - 1);
+                Moment moment = moments.get(j);
+                result.add(new Moment(moment.getTime(), moment.getValue() - previousMoment.getValue()));
+            }
+            if (i < order) {
+                moments = result;
+                result = new ArrayList<>();
+            }
+        }
+        return new TimeSeries(result, "Difference " + order + " of " + timeSeries.getTitle());
+    }
+
     public static double calcNumerator(TimeSeries timeSeries) {
         double mean = getMean(timeSeries);
         double standardDeviation = calcStandardDeviation(timeSeries, mean);
