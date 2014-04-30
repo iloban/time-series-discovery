@@ -20,7 +20,7 @@ import static by.bsu.fpmi.arimax.StatUtils.getRegion;
 import static by.bsu.fpmi.tsdtool.ui.i18n.MessageUtils.getMessage;
 
 public final class SelectRegionView implements View {
-    private final ARIMADialog dialog;
+    private final ArimaDialog1 dialog;
     private final JButton nextButton = new JButton(getMessage("ui.dialog.arimaDialog.button.next"));
     private final JLabel leftBoundLabel = new JLabel(getMessage("ui.dialog.arimaDialog.label.leftBound"));
     private final JLabel rightBoundLabel = new JLabel(getMessage("ui.dialog.arimaDialog.label.rightBound"));
@@ -31,7 +31,7 @@ public final class SelectRegionView implements View {
 
     private ChartPanel chartPanel;
 
-    public SelectRegionView(ARIMADialog dialog) {
+    public SelectRegionView(ArimaDialog1 dialog) {
         this.dialog = dialog;
 
         initComponents();
@@ -44,7 +44,7 @@ public final class SelectRegionView implements View {
         TimeSeries timeSeries = dialog.getTimeSeries();
 
         XYDataset timeSeriesDataset = TimeSeriesUtils.createTimeSeriesDataset(timeSeries);
-        JFreeChart timeSeriesChart = TimeSeriesUtils.createTimeSeriesChart(timeSeriesDataset);
+        JFreeChart timeSeriesChart = TimeSeriesUtils.createTimeSeriesChart(timeSeriesDataset, null);
         chartPanel = new ChartPanel(timeSeriesChart);
 
         BoundChangedListener boundChangedListener = new BoundChangedListener();

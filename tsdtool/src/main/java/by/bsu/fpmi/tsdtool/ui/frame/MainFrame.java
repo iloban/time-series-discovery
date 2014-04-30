@@ -4,7 +4,7 @@ import by.bsu.fpmi.tsdtool.ui.action.ActionUtils;
 import by.bsu.fpmi.tsdtool.ui.action.file.ExitAction;
 import by.bsu.fpmi.tsdtool.ui.action.file.FileAction;
 import by.bsu.fpmi.tsdtool.ui.action.file.OpenAction;
-import by.bsu.fpmi.tsdtool.ui.action.tool.ARIMAAction;
+import by.bsu.fpmi.tsdtool.ui.action.tool.ArimaAction1;
 import by.bsu.fpmi.tsdtool.ui.action.tool.AutocorrelationAction;
 import by.bsu.fpmi.tsdtool.ui.action.tool.HurstExponentAction;
 import by.bsu.fpmi.tsdtool.ui.action.tool.ToolsAction;
@@ -73,7 +73,7 @@ public class MainFrame extends JFrame {
         JMenu toolsMenu = new JMenu(ActionUtils.getAction(ToolsAction.class));
         toolsMenu.add(ActionUtils.getAction(AutocorrelationAction.class));
         toolsMenu.add(ActionUtils.getAction(HurstExponentAction.class));
-        toolsMenu.add(ActionUtils.getAction(ARIMAAction.class));
+        toolsMenu.add(ActionUtils.getAction(ArimaAction1.class));
         mainMenu.add(toolsMenu);
 
         setJMenuBar(mainMenu);

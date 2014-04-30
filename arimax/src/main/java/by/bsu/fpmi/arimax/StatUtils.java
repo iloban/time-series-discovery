@@ -30,7 +30,7 @@ public final class StatUtils {
                 result = new ArrayList<>();
             }
         }
-        return new TimeSeries(result, "Difference " + order + " of " + timeSeries.getTitle());
+        return new TimeSeries(result, timeSeries.getTitle());
     }
 
     public static double calcNumerator(TimeSeries timeSeries) {

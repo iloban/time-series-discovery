@@ -9,7 +9,7 @@ import javax.swing.JPanel;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 
-public final class ARIMADialog extends JFrame implements Dialog {
+public final class ArimaDialog1 extends JFrame implements Dialog {
     private static final int DEFAULT_WIDTH = 640;
     private static final int DEFAULT_HEIGHT = 480;
 
@@ -20,7 +20,7 @@ public final class ARIMADialog extends JFrame implements Dialog {
     private View currentView;
     private TimeSeries regionTimeSeries;
 
-    public ARIMADialog(int id, TimeSeries timeSeries) {
+    public ArimaDialog1(int id, TimeSeries timeSeries) {
         this.id = id;
         this.timeSeries = timeSeries;
 

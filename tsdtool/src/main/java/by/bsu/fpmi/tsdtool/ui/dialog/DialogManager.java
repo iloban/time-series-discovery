@@ -1,7 +1,7 @@
 package by.bsu.fpmi.tsdtool.ui.dialog;
 
 import by.bsu.fpmi.arimax.model.TimeSeries;
-import by.bsu.fpmi.tsdtool.ui.dialog.arima.ARIMADialog;
+import by.bsu.fpmi.tsdtool.ui.dialog.arima.ArimaDialog1;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -46,12 +46,12 @@ public final class DialogManager {
         return dialog;
     }
 
-    public static ARIMADialog createARIMADialog(TimeSeries timeSeries) {
+    public static ArimaDialog1 createARIMADialog(TimeSeries timeSeries) {
         if (DIALOG_MAP.size() >= MAX_DIALOG_COUNT) {
             // TODO: if more than max then show error message and break method
         }
         int id = getFreeId();
-        ARIMADialog dialog = new ARIMADialog(id, timeSeries);
+        ArimaDialog1 dialog = new ArimaDialog1(id, timeSeries);
         DIALOG_MAP.put(id, dialog);
         return dialog;
     }

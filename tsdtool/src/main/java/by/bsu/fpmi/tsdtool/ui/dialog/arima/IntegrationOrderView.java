@@ -20,7 +20,7 @@ import java.util.List;
 import static by.bsu.fpmi.tsdtool.ui.i18n.MessageUtils.getMessage;
 
 public final class IntegrationOrderView implements View {
-    private final ARIMADialog dialog;
+    private final ArimaDialog1 dialog;
     private final JLabel integrationParamLabel = new JLabel(getMessage("ui.dialog.arimaDialog.label.integrationParam"));
     private final JSpinner integrationParamSpinner = new JSpinner(new SpinnerNumberModel(0, 0, 100, 1));
     private final JButton nextButton = new JButton(getMessage("ui.dialog.arimaDialog.button.next"));
@@ -31,7 +31,7 @@ public final class IntegrationOrderView implements View {
     private ChartPanel acfChartPanel;
     private ChartPanel pacfChartPanel;
 
-    public IntegrationOrderView(ARIMADialog dialog) {
+    public IntegrationOrderView(ArimaDialog1 dialog) {
         this.dialog = dialog;
 
         initComponents();
@@ -43,26 +43,30 @@ public final class IntegrationOrderView implements View {
         TimeSeriesBundle bundle = StatUtils.getBundle(regionTimeSeries);
         bundles.add(0, bundle);
 
-        acfChartPanel = TimeSeriesUtils.createChartPanel(bundle.getAcfSeries());
-        pacfChartPanel = TimeSeriesUtils.createChartPanel(bundle.getPacfSeries());
+        acfChartPanel = TimeSeriesUtils.createYIntervalChartPanel(bundle.getAcfSeries());
+        pacfChartPanel = TimeSeriesUtils.createYIntervalChartPanel(bundle.getPacfSeries());
 
         integrationParamSpinner.addChangeListener((e) -> updateCharts());
 
         backButton.addActionListener((e) -> dialog.setView(new SelectRegionView(dialog)));
+        nextButton.addActionListener((e) -> dialog
+                .setView(new IdentificationView(dialog, bundles.get(getDifferenceOrder()), getDifferenceOrder())));
     }
 
     private void updateCharts() {
-        int differenceOrder = (int) integrationParamSpinner.getValue();
+        int differenceOrder = getDifferenceOrder();
         for (int i = bundles.size() - 1; i < differenceOrder; i++) {
             bundles.add(i + 1, StatUtils.getBundle(StatUtils.getDifference(bundles.get(i).getSourceTimeSeries(), 1)));
         }
         TimeSeriesBundle bundle = bundles.get(differenceOrder);
-        TimeSeriesUtils.updateChartPanel(acfChartPanel, bundle.getAcfSeries());
-        TimeSeriesUtils.updateChartPanel(pacfChartPanel, bundle.getPacfSeries());
+        TimeSeriesUtils.updateYIntervalChartPanel(acfChartPanel, bundle.getAcfSeries());
+        TimeSeriesUtils.updateYIntervalChartPanel(pacfChartPanel, bundle.getPacfSeries());
 
         acfChartPanel.updateUI();
         pacfChartPanel.updateUI();
     }
+
+    private int getDifferenceOrder() {return (int) integrationParamSpinner.getValue();}
 
     private void arrangeComponents() {
         JPanel contentPanel = dialog.getContentPanel();
