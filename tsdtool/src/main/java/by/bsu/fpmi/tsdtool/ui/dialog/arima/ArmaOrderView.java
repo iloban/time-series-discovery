@@ -1,7 +1,7 @@
 package by.bsu.fpmi.tsdtool.ui.dialog.arima;
 
 import by.bsu.fpmi.arimax.model.ArimaModel;
-import by.bsu.fpmi.arimax.model.TimeSeriesBundle;
+import by.bsu.fpmi.arimax.model.TimeSeries;
 import by.bsu.fpmi.tsdtool.util.TimeSeriesUtils;
 import org.jfree.chart.ChartPanel;
 
@@ -20,8 +20,8 @@ import java.util.List;
 
 import static by.bsu.fpmi.tsdtool.ui.i18n.MessageUtils.getMessage;
 
-public final class IdentificationView implements View {
-    private final ArimaDialog1 dialog;
+public final class ArmaOrderView implements View {
+    private final ArimaDialog dialog;
     private final JLabel arimaListLabel = new JLabel(getMessage("ui.dialog.arimaDialog.label.arimaList"));
     private final JList<String> arimaList = new JList<>();
     private final JLabel maOrderLabel = new JLabel(getMessage("ui.dialog.arimaDialog.label.maOrder"));
@@ -34,15 +34,15 @@ public final class IdentificationView implements View {
     private final JButton removeButton = new JButton(getMessage("ui.dialog.arimaDialog.button.remove"));
 
     private final ArimaListModel arimaListModel = new ArimaListModel();
-    private final TimeSeriesBundle bundle;
+    private final TimeSeries timeSeries;
     private final int d;
 
     private ChartPanel acfChartPanel;
     private ChartPanel pacfChartPanel;
 
-    public IdentificationView(ArimaDialog1 dialog, TimeSeriesBundle bundle, int d) {
+    public ArmaOrderView(ArimaDialog dialog, TimeSeries timeSeries, int d) {
         this.dialog = dialog;
-        this.bundle = bundle;
+        this.timeSeries = timeSeries;
         this.d = d;
 
         initComponents();
@@ -60,8 +60,8 @@ public final class IdentificationView implements View {
         arimaListModel.addArimaModel(new ArimaModel(1, d, 1));
         arimaListModel.addArimaModel(new ArimaModel(2, d, 2));
 
-        acfChartPanel = TimeSeriesUtils.createYIntervalChartPanel(bundle.getAcfSeries());
-        pacfChartPanel = TimeSeriesUtils.createYIntervalChartPanel(bundle.getPacfSeries());
+        acfChartPanel = TimeSeriesUtils.createAcfChartPanel(timeSeries);
+        pacfChartPanel = TimeSeriesUtils.createPacfChartPanel(timeSeries);
 
         backButton.addActionListener((e) -> dialog.setView(new IntegrationOrderView(dialog)));
         addButton.addActionListener((e) -> arimaListModel
@@ -84,12 +84,12 @@ public final class IdentificationView implements View {
         arrangeArimaList(contentPanel, gbc);
         arrangeAcfChart(contentPanel, gbc);
         arrangePacfChart(contentPanel, gbc);
-        arrangeButtons(contentPanel, gbc);
+        arrangeButtons(contentPanel);
     }
 
-    private void arrangeButtons(JPanel contentPanel, GridBagConstraints gbc) {
+    private void arrangeButtons(JPanel contentPanel) {
         JPanel buttonPanel = new JPanel(new GridBagLayout());
-        gbc = new GridBagConstraints();
+        GridBagConstraints gbc = new GridBagConstraints();
         gbc.insets = new Insets(5, 5, 5, 5);
 
         gbc.gridx = 0;

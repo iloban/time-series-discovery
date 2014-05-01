@@ -2,7 +2,6 @@ package by.bsu.fpmi.arimax;
 
 import by.bsu.fpmi.arimax.model.Moment;
 import by.bsu.fpmi.arimax.model.TimeSeries;
-import by.bsu.fpmi.arimax.model.TimeSeriesBundle;
 import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.ArrayList;
@@ -16,10 +15,11 @@ public final class StatUtils {
         if (order <= 0) {
             return timeSeries;
         }
+
         List<Moment> moments = timeSeries.getMoments();
         List<Moment> result = new ArrayList<>();
         for (int i = 1; i <= order; i++) {
-            result.add(new Moment(moments.get(0)));
+            result.add(Moment.valueOf(moments.get(0)));
             for (int j = 1; j < moments.size(); j++) {
                 Moment previousMoment = moments.get(j - 1);
                 Moment moment = moments.get(j);
@@ -30,7 +30,8 @@ public final class StatUtils {
                 result = new ArrayList<>();
             }
         }
-        return new TimeSeries(result, timeSeries.getTitle());
+
+        return new TimeSeries(result, "Integrated " + timeSeries.getTitle());
     }
 
     public static double calcNumerator(TimeSeries timeSeries) {
@@ -56,46 +57,44 @@ public final class StatUtils {
         return Math.log10(segmentLength / 2);
     }
 
-    public static TimeSeriesBundle getBundle(TimeSeries timeSeries) {
+    public static void calcAcfAndPacf(TimeSeries timeSeries) {
         double mean = getMean(timeSeries);
         double variance = getVariance(timeSeries, mean);
-        TimeSeries acfSeries = calcACFSeries(timeSeries, mean, variance);
-        TimeSeries pacfSeries = getPACFSeries(timeSeries.getTitle(), acfSeries);
-        return new TimeSeriesBundle(timeSeries, acfSeries, pacfSeries);
+        fetchAcfSeries(timeSeries, mean, variance);
+        fetchPacfSeries(timeSeries);
     }
 
-    public static TimeSeries calcACFSeries(TimeSeries timeSeries, double mean, double variance) {
+    public static void fetchAcfSeries(TimeSeries timeSeries, double mean, double variance) {
         List<Moment> moments = timeSeries.getMoments();
-        List<Moment> result = new ArrayList<>(moments.size());
-        for (int k = 0; k < moments.size(); k++) {
-            result.add(new Moment(k, getACF(moments, k, mean, variance)));
+        List<Double> result = timeSeries.getAcf();
+        result.clear();
+        for (int k = 0, n = moments.size() / 4; k < n; k++) {
+            result.add(getAcf(moments, k, mean, variance));
         }
-        return new TimeSeries(result, "ACF of " + timeSeries.getTitle());
     }
 
-    public static TimeSeries getPACFSeries(String timeSeriesTitle, TimeSeries acfSeries) {
+    public static void fetchPacfSeries(TimeSeries timeSeries) {
         // Declaration
-        List<Moment> acfMoments = acfSeries.getMoments();
-        List<Moment> result = new ArrayList<>(acfMoments.size());
+        List<Double> acf = timeSeries.getAcf();
+        List<Double> result = timeSeries.getPacf();
+        result.clear();
+        result.add(Double.NaN);
 
         List<Double> oldFies;
         List<Double> newFies = new ArrayList<>();
 
         // Initialization
-        result.add(acfMoments.get(1));
-        newFies.add(acfMoments.get(1).getValue());
+        result.add(acf.get(1));
+        newFies.add(acf.get(1));
 
         // Computation
-        for (int k = 2; k < acfMoments.size(); k++) {
-            Moment moment = new Moment(k, getPACF(acfMoments, k, newFies));
-            result.add(moment);
+        for (int k = 2; k < acf.size(); k++) {
+            double pacf = getPacf(acf, k, newFies);
+            result.add(pacf);
 
             oldFies = newFies;
-            newFies = getNewFies(oldFies, k, moment.getValue());
+            newFies = getNewFies(oldFies, k, pacf);
         }
-
-        // Result
-        return new TimeSeries(result, "PACF of " + timeSeriesTitle);
     }
 
     private static List<Double> getNewFies(List<Double> oldFies, int k, double newFi) {
@@ -107,17 +106,17 @@ public final class StatUtils {
         return result;
     }
 
-    private static double getPACF(List<Moment> acfMoments, int k, List<Double> fies) {
+    private static double getPacf(List<Double> acf, int k, List<Double> fies) {
         double numeratorSum = 0;
         double denominatorSum = 0;
         for (int i = 0; i < k - 1; i++) {
-            numeratorSum += fies.get(i) * acfMoments.get(k - i - 2).getValue();
-            denominatorSum += fies.get(i) * acfMoments.get(i).getValue();
+            numeratorSum += fies.get(i) * acf.get(k - i - 2);
+            denominatorSum += fies.get(i) * acf.get(i);
         }
-        return (acfMoments.get(k - 1).getValue() - numeratorSum) / (1 - denominatorSum);
+        return (acf.get(k - 1) - numeratorSum) / (1 - denominatorSum);
     }
 
-    public static double getACF(List<Moment> moments, int k, double mean, double variance) {
+    public static double getAcf(List<Moment> moments, int k, double mean, double variance) {
         int n = moments.size();
         double numerator = 0;
         double denominator = (n - k) * variance;

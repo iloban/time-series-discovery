@@ -26,7 +26,7 @@ public final class TimeSeriesFactory {
             ColumnPositionMappingStrategy<Moment> mappingStrategy = new ColumnPositionMappingStrategy<>();
             mappingStrategy.setType(Moment.class);
 
-            String[] columns = new String[]{ Moment.Property.TIME, Moment.Property.VALUE };
+            String[] columns = new String[]{ Moment.TIME_FIELD, Moment.VALUE_FIELD };
             mappingStrategy.setColumnMapping(columns);
 
             CsvToBean<Moment> csv = new CsvToBean<>();

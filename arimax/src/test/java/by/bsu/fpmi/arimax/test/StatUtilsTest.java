@@ -16,9 +16,9 @@ public class StatUtilsTest {
     @Test
     public void testMean() {
         List<Moment> series = new ArrayList<>();
-        series.add(new Moment(1));
-        series.add(new Moment(2));
-        series.add(new Moment(3));
+        series.add(new Moment(1, 1));
+        series.add(new Moment(2, 2));
+        series.add(new Moment(3, 3));
 
         double mean = StatUtils.getMean(new TimeSeries(series, "test"));
 

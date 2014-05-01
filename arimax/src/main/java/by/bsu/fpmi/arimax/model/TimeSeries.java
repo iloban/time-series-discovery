@@ -1,10 +1,13 @@
 package by.bsu.fpmi.arimax.model;
 
+import java.util.ArrayList;
 import java.util.List;
 
-public class TimeSeries {
+public final class TimeSeries {
+    private final String title;
     private final List<Moment> moments;
-    private String title;
+    private final List<Double> acf = new ArrayList<>();
+    private final List<Double> pacf = new ArrayList<>();
 
     public TimeSeries(List<Moment> moments, String title) {
         this.moments = moments;
@@ -23,7 +26,11 @@ public class TimeSeries {
         return title;
     }
 
-    public void setTitle(String title) {
-        this.title = title;
+    public List<Double> getAcf() {
+        return acf;
+    }
+
+    public List<Double> getPacf() {
+        return pacf;
     }
 }

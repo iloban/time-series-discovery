@@ -2,7 +2,6 @@ package by.bsu.fpmi.tsdtool.ui.dialog.arima;
 
 import by.bsu.fpmi.arimax.StatUtils;
 import by.bsu.fpmi.arimax.model.TimeSeries;
-import by.bsu.fpmi.arimax.model.TimeSeriesBundle;
 import by.bsu.fpmi.tsdtool.util.TimeSeriesUtils;
 import org.jfree.chart.ChartPanel;
 
@@ -20,18 +19,18 @@ import java.util.List;
 import static by.bsu.fpmi.tsdtool.ui.i18n.MessageUtils.getMessage;
 
 public final class IntegrationOrderView implements View {
-    private final ArimaDialog1 dialog;
+    private final ArimaDialog dialog;
     private final JLabel integrationParamLabel = new JLabel(getMessage("ui.dialog.arimaDialog.label.integrationParam"));
     private final JSpinner integrationParamSpinner = new JSpinner(new SpinnerNumberModel(0, 0, 100, 1));
     private final JButton nextButton = new JButton(getMessage("ui.dialog.arimaDialog.button.next"));
     private final JButton backButton = new JButton(getMessage("ui.dialog.arimaDialog.button.back"));
 
-    private final List<TimeSeriesBundle> bundles = new ArrayList<>();
+    private final List<TimeSeries> timeSerieses = new ArrayList<>();
 
     private ChartPanel acfChartPanel;
     private ChartPanel pacfChartPanel;
 
-    public IntegrationOrderView(ArimaDialog1 dialog) {
+    public IntegrationOrderView(ArimaDialog dialog) {
         this.dialog = dialog;
 
         initComponents();
@@ -39,34 +38,37 @@ public final class IntegrationOrderView implements View {
     }
 
     private void initComponents() {
-        TimeSeries regionTimeSeries = dialog.getRegionTimeSeries();
-        TimeSeriesBundle bundle = StatUtils.getBundle(regionTimeSeries);
-        bundles.add(0, bundle);
+        TimeSeries timeSeries = dialog.getRegionTimeSeries();
+        StatUtils.calcAcfAndPacf(timeSeries);
+        timeSerieses.add(0, timeSeries);
 
-        acfChartPanel = TimeSeriesUtils.createYIntervalChartPanel(bundle.getAcfSeries());
-        pacfChartPanel = TimeSeriesUtils.createYIntervalChartPanel(bundle.getPacfSeries());
+        acfChartPanel = TimeSeriesUtils.createAcfChartPanel(timeSeries);
+        pacfChartPanel = TimeSeriesUtils.createPacfChartPanel(timeSeries);
 
         integrationParamSpinner.addChangeListener((e) -> updateCharts());
 
         backButton.addActionListener((e) -> dialog.setView(new SelectRegionView(dialog)));
         nextButton.addActionListener((e) -> dialog
-                .setView(new IdentificationView(dialog, bundles.get(getDifferenceOrder()), getDifferenceOrder())));
+                .setView(new ArmaOrderView(dialog, timeSerieses.get(getIntegrationOrder()), getIntegrationOrder())));
     }
 
     private void updateCharts() {
-        int differenceOrder = getDifferenceOrder();
-        for (int i = bundles.size() - 1; i < differenceOrder; i++) {
-            bundles.add(i + 1, StatUtils.getBundle(StatUtils.getDifference(bundles.get(i).getSourceTimeSeries(), 1)));
+        int integrationOrder = getIntegrationOrder();
+        for (int i = timeSerieses.size() - 1; i < integrationOrder; i++) {
+            TimeSeries difference = StatUtils.getDifference(timeSerieses.get(i), 1);
+            StatUtils.calcAcfAndPacf(difference);
+            timeSerieses.add(i + 1, difference);
         }
-        TimeSeriesBundle bundle = bundles.get(differenceOrder);
-        TimeSeriesUtils.updateYIntervalChartPanel(acfChartPanel, bundle.getAcfSeries());
-        TimeSeriesUtils.updateYIntervalChartPanel(pacfChartPanel, bundle.getPacfSeries());
+
+        TimeSeries timeSeries = timeSerieses.get(integrationOrder);
+        TimeSeriesUtils.updateChartPanel(acfChartPanel, TimeSeriesUtils.createAcfDataset(timeSeries));
+        TimeSeriesUtils.updateChartPanel(pacfChartPanel, TimeSeriesUtils.createPacfDataset(timeSeries));
 
         acfChartPanel.updateUI();
         pacfChartPanel.updateUI();
     }
 
-    private int getDifferenceOrder() {return (int) integrationParamSpinner.getValue();}
+    private int getIntegrationOrder() {return (int) integrationParamSpinner.getValue();}
 
     private void arrangeComponents() {
         JPanel contentPanel = dialog.getContentPanel();
